@@ -6,12 +6,11 @@
 /*   By: lgaveria <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/01/11 18:25:15 by lgaveria          #+#    #+#             */
-/*   Updated: 2017/03/13 20:29:44 by lgaveria         ###   ########.fr       */
+/*   Updated: 2017/05/12 17:12:38 by lgaveria         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include <stdio.h>
 
 char	*ft_strjoin_free(char *s1, char *s2, int m)
 {
@@ -45,30 +44,20 @@ int		countchar(char *s)
 	return (i);
 }
 
-t_memfd	*create_new_elem(t_memfd **lst, const int fd)
+t_list	*create_new_elem(t_list **lst, const int fd)
 {
-	t_memfd *tmp;
+	t_list	*tmp;
 
-	if (!*lst)
-	{
-		if (!(*lst = (t_memfd*)malloc(sizeof(t_memfd))))
-			return (NULL);
-		(*lst)->fd = fd;
-		(*lst)->mem = NULL;
-		(*lst)->next = NULL;
-	}
 	tmp = *lst;
-	while (tmp && tmp->fd != fd)
-		tmp = tmp->next;
-	if (tmp == NULL)
+	while (tmp && tmp->content_size != (size_t)fd)
 	{
-		if (!(tmp = (t_memfd*)malloc(sizeof(t_memfd))))
-			return (NULL);
-		tmp->fd = fd;
-		tmp->mem = NULL;
-		tmp->next = NULL;
+		tmp = tmp->next;
 	}
-	return (tmp);
+	if (tmp)
+		return (tmp);
+	tmp = ft_lstnew("\0", (size_t)fd);
+	ft_lstadd(lst, tmp);
+	return (*lst);
 }
 
 char	*get_mem(char *line)
@@ -91,26 +80,26 @@ char	*get_mem(char *line)
 
 int		get_next_line(const int fd, char **line)
 {
-	static t_memfd	*lst = NULL;
-	t_memfd			*cur;
+	static t_list	*lst = NULL;
+	t_list			*cur;
 	char			*buf;
 	int				read_ret;
 
-	cur = create_new_elem(&lst, fd);
-	if (!line || !(buf = (char*)malloc(sizeof(char) * (BUFF_SIZE + 1))))
+	if (fd < 0 || !line || !(buf = malloc(sizeof(char) * (BUFF_SIZE + 1))))
 		return (-1);
-	*line = ft_strjoin_free(NULL, cur->mem, 2);
+	cur = create_new_elem(&lst, fd);
+	*line = ft_strjoin_free(NULL, cur->content, 2);
 	read_ret = 1;
 	while (!(ft_strchr(*line, '\n')) && read_ret != 0)
 	{
-		if ((read_ret = read(fd, buf, BUFF_SIZE)) == -1)
+		if ((read_ret = read(fd, buf, BUFF_SIZE)) < 0)
 			return (-1);
 		buf[read_ret] = '\0';
 		*line = ft_strjoin_free(*line, buf, 1);
 	}
 	if (ft_strlen(*line) == 0)
 		return (0);
-	cur->mem = get_mem(*line);
+	cur->content = get_mem(*line);
 	(*line)[countchar(*line)] = '\0';
 	free(buf);
 	return (1);
