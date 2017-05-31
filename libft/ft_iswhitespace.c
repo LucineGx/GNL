@@ -1,32 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_iswhitespace.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lgaveria <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/01/14 11:20:38 by lgaveria          #+#    #+#             */
-/*   Updated: 2017/05/30 16:57:15 by lgaveria         ###   ########.fr       */
+/*   Created: 2016/11/16 18:36:00 by lgaveria          #+#    #+#             */
+/*   Updated: 2016/12/09 20:40:53 by lgaveria         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
-
-# define GET_NEXT_LINE_H
-# define BUFF_SIZE 5
-
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include "libft/libft.h"
-
-typedef struct	s_memfd
+int		ft_iswhitespace(int c)
 {
-	char			*mem;
-	int				fd;
-	struct s_memfd	*next;
-}				t_memfd;
-
-int				get_next_line(const int fd, char **line);
-
-#endif
+	if (c == '\n')
+		return (1);
+	if (c == ' ')
+		return (1);
+	if (c == '\t')
+		return (1);
+	if (c == '\f')
+		return (1);
+	if (c == '\v')
+		return (1);
+	if (c == '\r')
+		return (1);
+	else
+		return (0);
+}

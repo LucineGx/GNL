@@ -1,32 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_strstr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lgaveria <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/01/14 11:20:38 by lgaveria          #+#    #+#             */
-/*   Updated: 2017/05/30 16:57:15 by lgaveria         ###   ########.fr       */
+/*   Created: 2016/11/10 17:08:07 by lgaveria          #+#    #+#             */
+/*   Updated: 2016/11/24 17:10:22 by lgaveria         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
+#include "libft.h"
 
-# define GET_NEXT_LINE_H
-# define BUFF_SIZE 5
-
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include "libft/libft.h"
-
-typedef struct	s_memfd
+char	*ft_strstr(const char *str, const char *to_find)
 {
-	char			*mem;
-	int				fd;
-	struct s_memfd	*next;
-}				t_memfd;
+	int i;
+	int j;
 
-int				get_next_line(const int fd, char **line);
-
-#endif
+	i = 0;
+	if (ft_strlen(to_find) == 0)
+		return ((void *)str);
+	while (str[i])
+	{
+		j = 0;
+		while (str[i] == to_find[j])
+		{
+			if (to_find[j + 1] == '\0')
+				return ((char *)&str[i - j]);
+			i += 1;
+			j += 1;
+		}
+		i = i + 1 - j;
+	}
+	return (0);
+}

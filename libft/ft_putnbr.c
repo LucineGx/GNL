@@ -1,32 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_putnbr.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lgaveria <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/01/14 11:20:38 by lgaveria          #+#    #+#             */
-/*   Updated: 2017/05/30 16:57:15 by lgaveria         ###   ########.fr       */
+/*   Created: 2016/11/10 11:26:08 by lgaveria          #+#    #+#             */
+/*   Updated: 2016/11/21 16:00:41 by lgaveria         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
+#include "libft.h"
 
-# define GET_NEXT_LINE_H
-# define BUFF_SIZE 5
-
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include "libft/libft.h"
-
-typedef struct	s_memfd
+void	ft_putnbr(int n)
 {
-	char			*mem;
-	int				fd;
-	struct s_memfd	*next;
-}				t_memfd;
-
-int				get_next_line(const int fd, char **line);
-
-#endif
+	if (n < 0)
+	{
+		ft_putchar('-');
+		if (n == -2147483648)
+		{
+			ft_putchar('2');
+			ft_putnbr(147483648);
+		}
+		else
+			ft_putnbr(-n);
+	}
+	else
+	{
+		if (n > 9)
+			ft_putnbr(n / 10);
+		ft_putchar((n % 10) + 48);
+	}
+}

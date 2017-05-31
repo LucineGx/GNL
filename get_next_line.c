@@ -1,106 +1,128 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.c                                    :+:      :+:    :+:   */
+/*   new_gnl.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lgaveria <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/01/11 18:25:15 by lgaveria          #+#    #+#             */
-/*   Updated: 2017/05/12 17:12:38 by lgaveria         ###   ########.fr       */
+/*   Created: 2017/05/27 15:18:22 by lgaveria          #+#    #+#             */
+/*   Updated: 2017/05/31 19:57:13 by lgaveria         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-char	*ft_strjoin_free(char *s1, char *s2, int m)
+char	*ft_strjoinfree(char **s1, char **s2, int m)
 {
-	char *ret;
+	char *r;
 
-	if (s1 == NULL && s2 == NULL)
+	if (*s1 == NULL && *s2 == NULL)
 		return (NULL);
-	if (s1 == NULL || s2 == NULL)
-		ret = ((s1 == NULL) ? ft_strdup(s2) : ft_strdup(s1));
+	if (*s1 == NULL || *s2 == NULL)
+		r = ((*s1 == NULL) ? ft_strdup(*s2) : ft_strdup(*s1));
 	else
 	{
-		if (!(ret = malloc(sizeof(char) * (ft_strlen(s1) + ft_strlen(s2) + 1))))
+		if (!(r = malloc(sizeof(char) * (ft_strlen(*s1) + ft_strlen(*s2) + 1))))
 			return (NULL);
-		ret = ft_strcpy(ret, s1);
-		ret = ft_strcat(ret, s2);
+		r = ft_strcpy(r, *s1);
+		r = ft_strcat(r, *s2);
 	}
-	if ((m == 1 || m == 3) && s1 != NULL)
-		free(s1);
-	if ((m == 2 || m == 3) && s2 != NULL)
-		free(s2);
-	return (ret);
+	if ((m == 1 || m == 3) && *s1 != NULL)
+	{
+		free(*s1);
+		*s1 = NULL;
+	}
+	if ((m == 2 || m == 3) && *s2 != NULL)
+	{
+		free(*s2);
+		*s2 = NULL;
+	}
+	return (r);
 }
 
-int		countchar(char *s)
+t_memfd	*select_fd(t_memfd **lst, const int fd)
 {
-	int i;
-
-	i = 0;
-	while (s[i] && s[i] != '\n')
-		i += 1;
-	return (i);
-}
-
-t_list	*create_new_elem(t_list **lst, const int fd)
-{
-	t_list	*tmp;
+	t_memfd *tmp;
+	t_memfd *newelem;
 
 	tmp = *lst;
-	while (tmp && tmp->content_size != (size_t)fd)
-	{
+	while (tmp && tmp->fd != fd)
 		tmp = tmp->next;
-	}
 	if (tmp)
 		return (tmp);
-	tmp = ft_lstnew("\0", (size_t)fd);
-	ft_lstadd(lst, tmp);
+	else
+	{
+		if (!(newelem = malloc(sizeof(t_memfd))))
+			return (NULL);
+		newelem->mem = NULL;
+		newelem->fd = fd;
+		newelem->next = *lst;
+		*lst = newelem;
+	}
 	return (*lst);
 }
 
-char	*get_mem(char *line)
+char	*cut_line(char **line)
 {
 	char	*mem;
+	char	*tmp;
 	int		i;
 	int		j;
 
-	i = countchar(line);
-	if (i == (int)ft_strlen(line))
+	i = 0;
+	tmp = *line;
+	while (tmp[i] != '\n' && tmp[i])
+		i += 1;
+	if (i == (int)ft_strlen(*line))
 		return (NULL);
-	if (!(mem = malloc(sizeof(char) * (ft_strlen(line) - i))))
+	if (!(mem = malloc(sizeof(char) * ft_strlen(tmp) - i)))
 		return (NULL);
+	tmp[i] = '\0';
 	j = 0;
-	while (line[++i])
-		mem[j++] = line[i];
+	while (tmp[++i])
+		mem[j++] = tmp[i];
 	mem[j] = '\0';
+	*line = ft_strdup(tmp);
+	if (tmp)
+		free(tmp);
 	return (mem);
 }
 
-int		get_next_line(const int fd, char **line)
+int		read_line(int fd, char **line, t_memfd *cur)
 {
-	static t_list	*lst = NULL;
-	t_list			*cur;
-	char			*buf;
-	int				read_ret;
+	int		read_ret;
+	char	*buf;
 
-	if (fd < 0 || !line || !(buf = malloc(sizeof(char) * (BUFF_SIZE + 1))))
+	if (!(buf = (char*)malloc(sizeof(char) * (BUFF_SIZE + 1))))
 		return (-1);
-	cur = create_new_elem(&lst, fd);
-	*line = ft_strjoin_free(NULL, cur->content, 2);
-	read_ret = 1;
+	if ((read_ret = read(fd, buf, BUFF_SIZE)) <= 0 && cur->mem == NULL)
+		return (read_ret);
+	buf[read_ret] = '\0';
+	*line = ft_strjoinfree(&cur->mem, &buf, 1);
 	while (!(ft_strchr(*line, '\n')) && read_ret != 0)
 	{
 		if ((read_ret = read(fd, buf, BUFF_SIZE)) < 0)
 			return (-1);
 		buf[read_ret] = '\0';
-		*line = ft_strjoin_free(*line, buf, 1);
+		*line = ft_strjoinfree(line, &buf, 1);
 	}
+	if (buf)
+		free(buf);
 	if (ft_strlen(*line) == 0)
 		return (0);
-	cur->content = get_mem(*line);
-	(*line)[countchar(*line)] = '\0';
-	free(buf);
+	cur->mem = cut_line(line);
 	return (1);
+}
+
+int		get_next_line(const int fd, char **line)
+{
+	static t_memfd	*lst = NULL;
+	t_memfd			*cur;
+	int				ret;
+
+	cur = select_fd(&lst, fd);
+	if (fd < 0 || !line)
+		return (-1);
+	ret = read_line(fd, line, cur);
+	return (ret);
 }

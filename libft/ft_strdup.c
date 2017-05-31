@@ -1,32 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_strdup.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lgaveria <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/01/14 11:20:38 by lgaveria          #+#    #+#             */
-/*   Updated: 2017/05/30 16:57:15 by lgaveria         ###   ########.fr       */
+/*   Created: 2016/11/10 11:41:16 by lgaveria          #+#    #+#             */
+/*   Updated: 2017/01/25 17:53:12 by lgaveria         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
+#include "libft.h"
 
-# define GET_NEXT_LINE_H
-# define BUFF_SIZE 5
-
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include "libft/libft.h"
-
-typedef struct	s_memfd
+char	*ft_strdup(const char *s)
 {
-	char			*mem;
-	int				fd;
-	struct s_memfd	*next;
-}				t_memfd;
+	char	*dest;
+	size_t	i;
 
-int				get_next_line(const int fd, char **line);
-
-#endif
+	if ((dest = malloc(sizeof(char) * ft_strlen(s) + 1)) == 0)
+		return (0);
+	i = 0;
+	while (i < ft_strlen(s))
+	{
+		dest[i] = s[i];
+		i += 1;
+	}
+	dest[ft_strlen(s)] = '\0';
+	return (dest);
+}

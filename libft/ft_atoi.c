@@ -1,32 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_next_line.h                                    :+:      :+:    :+:   */
+/*   ft_atoi.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: lgaveria <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/01/14 11:20:38 by lgaveria          #+#    #+#             */
-/*   Updated: 2017/05/30 16:57:15 by lgaveria         ###   ########.fr       */
+/*   Created: 2016/11/10 18:16:59 by lgaveria          #+#    #+#             */
+/*   Updated: 2016/12/07 19:07:22 by lgaveria         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef GET_NEXT_LINE_H
+#include "libft.h"
 
-# define GET_NEXT_LINE_H
-# define BUFF_SIZE 5
-
-# include <unistd.h>
-# include <stdlib.h>
-# include <fcntl.h>
-# include "libft/libft.h"
-
-typedef struct	s_memfd
+int		ft_atoi(const char *str)
 {
-	char			*mem;
-	int				fd;
-	struct s_memfd	*next;
-}				t_memfd;
+	int i;
+	int signe;
+	int nb;
 
-int				get_next_line(const int fd, char **line);
-
-#endif
+	i = 0;
+	signe = 1;
+	nb = 0;
+	while (ft_iswhitespace(str[i]))
+		i += 1;
+	if (str[i] == '-' || str[i] == '+')
+	{
+		if (str[i] == '-')
+			signe = -1;
+		i += 1;
+	}
+	while (ft_isdigit(str[i]))
+	{
+		nb = nb * 10 + (str[i] - '0');
+		i += 1;
+	}
+	return (signe * nb);
+}
